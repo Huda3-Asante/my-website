@@ -104,7 +104,7 @@ class CartSystem {
             }
             
             calculateTotal() {
-                return this.cart.reduce((total, item) => total + (parseFloat(item.price) * item.quantity), 0);
+                return this.cart.reduce((total, item) => total + Number.parseFloat((item.price) * item.quantity), 0);
             }
             
             renderCartPage() {
@@ -120,7 +120,7 @@ class CartSystem {
                 const totalItems = this.cart.reduce((total, item) => total + item.quantity, 0);
                 
                 // Update cart status
-                cartStatus.textContent = `${totalItems} item${totalItems !== 1 ? 's' : ''}`;
+                cartStatus.textContent = `${totalItems} item${totalItems === 1 ? '' : 's'}`;
                 
                 if (this.cart.length === 0) {
                     // Show empty state
@@ -138,7 +138,7 @@ class CartSystem {
                     let subtotal = 0;
                     
                     this.cart.forEach((item, index) => {
-                        const itemTotal = parseFloat(item.price) * item.quantity;
+                        const itemTotal =Number.parseFloat(item.price) * item.quantity;
                         subtotal += itemTotal;
                         
                         cartItemsHTML += `
@@ -146,7 +146,7 @@ class CartSystem {
                                 <img src="${item.image}" alt="${item.name}" class="cart-item-image" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iODAiIGhlaWdodD0iODAiIHJ4PSIxMCIgZmlsbD0iI2ZmZiIvPjxwYXRoIGQ9Ik00MCAzMEM0NSAzMCA0OSAzNCA0OSA0MEM0OSA0NiA0NSA1MCA0MCA1MEMzNSA1MCAzMSA0NiAzMSA0MEMzMSAzNCAzNSAzMCA0MCAzMFoiIGZpbGw9IiNlOGE1OTgiLz48cGF0aCBkPSJNNTUgNThINTVINTBDNDUgNTggNDAgNTMgNDAgNDhWNDRDNDAgMzkgNDUgMzQgNTAgMzRINTVDNjAgMzQgNjUgMzkgNjUgNDRWNDhDNjUgNTMgNjAgNTggNTUgNThaIiBmaWxsPSIjZThhNTk4Ii8+PC9zdmc+'">
                                 <div class="cart-item-details">
                                     <div class="cart-item-name">${item.name}</div>
-                                    <div class="cart-item-price">GHS ${parseFloat(item.price).toFixed(2)}</div>
+                                    <div class="cart-item-price">GHS ${Number.parseFloat(item.price).toFixed(2)}</div>
                                 </div>
                                 <div class="quantity-controls">
                                     <button class="quantity-btn minus" data-name="${item.name}">-</button>
@@ -230,7 +230,7 @@ class CartSystem {
                 const continueShoppingBtn = document.getElementById('continue-shopping-btn');
                 if (continueShoppingBtn) {
                     continueShoppingBtn.addEventListener('click', () => {
-                        window.location.href = 'index.html';
+                        globalThis.location.href = 'index.html';
                     });
                 }
             }
@@ -265,14 +265,14 @@ class CartSystem {
 
 // Initialize cart system when page loads
 document.addEventListener('DOMContentLoaded', () => {
-    window.cartSystem = new CartSystem();
+    globalThis.cartSystem = new CartSystem();
     
     // Update cart count on all pages
     if (typeof updateCartCount === 'function') {
         updateCartCount();
     }
-    
-    const params = new URLSearchParams(window.location.search);
+
+    const params = new URLSearchParams(globalThis.location.search);
     const category = params.get("category");
 
     if (!category) return;
@@ -285,7 +285,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
    document.addEventListener("DOMContentLoaded", () => {
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(globalThis.location.search);
     const category = params.get("category");
 
     if (!category) return;
@@ -297,5 +297,139 @@ document.addEventListener('DOMContentLoaded', () => {
             product.style.display = "none";
         }
     });
-}); 
+    // Mobile Menu Toggle
+document.addEventListener('DOMContentLoaded', function() {
+    createMobileMenu();
+    setupTouchEvents();
+    preventZoomOnInput();
 });
+
+// Create mobile menu toggle
+function createMobileMenu() {
+    // Check if we're on mobile
+    if (window.innerWidth <= 768) {
+        // Create mobile menu button
+        const menuToggle = document.createElement('button');
+        menuToggle.className = 'mobile-menu-toggle';
+        menuToggle.innerHTML = '<i class="fas fa-bars"></i>';
+        menuToggle.setAttribute('aria-label', 'Open menu');
+        
+        // Find header and add button
+        const header = document.querySelector('header');
+        if (header) {
+            header.appendChild(menuToggle);
+        }
+        
+        // Get existing nav links or create mobile nav
+        let navLinks = document.querySelector('.nav-links');
+        if (!navLinks) {
+            navLinks = document.querySelector('.nav') || document.querySelector('nav');
+            if (navLinks) {
+                navLinks.classList.add('nav-links');
+            }
+        }
+        
+        if (navLinks) {
+            // Create close button for mobile menu
+            const closeBtn = document.createElement('button');
+            closeBtn.className = 'close-menu';
+            closeBtn.innerHTML = '<i class="fas fa-times"></i>';
+            closeBtn.setAttribute('aria-label', 'Close menu');
+            navLinks.appendChild(closeBtn);
+            
+            // Toggle menu on button click
+            menuToggle.addEventListener('click', function() {
+                navLinks.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
+            
+            closeBtn.addEventListener('click', function() {
+                navLinks.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+            
+            // Close menu when clicking links
+            navLinks.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', function() {
+                    navLinks.classList.remove('active');
+                    document.body.style.overflow = '';
+                });
+            });
+            
+            // Close menu when clicking outside
+            navLinks.addEventListener('click', function(e) {
+                if (e.target === navLinks) {
+                    navLinks.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            });
+        }
+    }
+}
+
+// Setup touch events for better mobile experience
+function setupTouchEvents() {
+    // Add touch feedback to buttons
+    document.querySelectorAll('button, a.btn-primary, .add-to-cart').forEach(button => {
+        button.addEventListener('touchstart', function() {
+            this.style.transform = 'scale(0.98)';
+            this.style.opacity = '0.9';
+        });
+        
+        button.addEventListener('touchend', function() {
+            this.style.transform = '';
+            this.style.opacity = '';
+        });
+    });
+    
+    // Prevent text selection on tap
+    document.querySelectorAll('.btn-primary, .add-to-cart, .quantity-btn').forEach(el => {
+        el.style.webkitTouchCallout = 'none';
+        el.style.webkitUserSelect = 'none';
+        el.style.userSelect = 'none';
+    });
+}
+
+// Prevent zoom on input focus in iOS
+function preventZoomOnInput() {
+    let viewport = document.querySelector('meta[name="viewport"]');
+    
+    document.addEventListener('focusin', function(e) {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
+            viewport.setAttribute('content', 'width=device-width, initial-scale=1, maximum-scale=1');
+        }
+    });
+    
+    document.addEventListener('focusout', function() {
+        viewport.setAttribute('content', 'width=device-width, initial-scale=1');
+    });
+}
+
+globalThis// Handle orientation changes
+.addEventListener('orientationchange', function() {
+    // Update any layout that needs to change on orientation
+    setTimeout(function() {
+        globalThis.dispatchEvent(new Event('resize'));
+    }, 300);
+});
+
+// Update cart button position on scroll for mobile
+let lastScrollTop = 0;
+window.addEventListener('scroll', function() {
+    if (window.innerWidth <= 768) {
+        const cartBtn = document.querySelector('.cart-btn');
+        if (cartBtn) {
+            const st = window.pageYOffset || document.documentElement.scrollTop;
+            if (st > lastScrollTop) {
+                // Scrolling down - hide cart button
+                cartBtn.style.transform = 'translateY(100px)';
+            } else {
+                // Scrolling up - show cart button
+                cartBtn.style.transform = 'translateY(0)';
+            }
+            lastScrollTop = st <= 0 ? 0 : st;
+        }
+    }
+});
+});
+})
