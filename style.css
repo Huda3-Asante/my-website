@@ -16,9 +16,6 @@ h2 {
     color: #d63384;
 }
 
-/* ======================
-   HEADER
-====================== */
 .top-header {
     display: flex;
     justify-content: space-between;
@@ -63,9 +60,6 @@ h2 {
     text-decoration: none;
 }
 
-/* ======================
-   NAVIGATION
-====================== */
 .nav {
     display: flex;
     justify-content: center;
@@ -86,9 +80,6 @@ h2 {
     color: #ff8000;
 }
 
-/* ======================
-   HERO SECTION
-====================== */
 .hero {
     background: linear-gradient(to right, #ffb6d9, #ffd6e9);
     padding: 60px 5%;
@@ -123,9 +114,6 @@ h2 {
     background: #048339;
 }
 
-/* ======================
-   SLIDER
-====================== */
 .slider-section {
     margin: 40px auto;
     width: 90%;
@@ -149,10 +137,6 @@ h2 {
     transform: scale(1.05);
 }
 
-
-/* ======================
-   CATEGORY CARDS
-====================== */
 .categories .cat-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -176,9 +160,7 @@ h2 {
     transform: translateY(-5px);
     box-shadow: 0 6px 18px rgba(0,0,0,0.15);
 }
-/* ======================
-   FOOTER
-====================== */
+
 footer {
     text-align: center;
     padding: 20px;
@@ -186,10 +168,6 @@ footer {
     color: #8b1f5a;
     margin-top: 40px;
 }
-
-/* ======================
-   PRODUCTS PAGE CSS
-====================== */
 
 /* Page Title */
 .page-title {
@@ -500,7 +478,6 @@ nav ul li a.active {
     margin: 5px 0;
 }
 /* Contact Page */
-/* CONTACT PAGE HEADER — LOGO SECTION */
 .logo-section {
     display: flex;
     align-items: center;
@@ -515,7 +492,7 @@ nav ul li a.active {
     height: 65px;
     border-radius: 50%;
     object-fit: cover;
-    border: 2px solid #e67e22;  /* soft orange border */
+    border: 2px solid #e67e22;  
 }
 
 .logo-section h1 {
@@ -646,9 +623,6 @@ nav ul li a:hover {
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
-/* Map */
-/* MAP SECTION */
-/* MAP SECTION STYLES */
 .map-section {
     padding: 50px 20px;
     background-color: #f9f9f9;
@@ -774,7 +748,7 @@ nav ul li a:hover {
 .add-btn {
     padding: 10px;
     width: 100%;
-    background: #ff279a; /* brand pink */
+    background: #ff279a; 
     color: white;
     border: none;
     border-radius: 8px;
@@ -914,7 +888,6 @@ nav ul li a:hover {
     border-bottom: 2px solid #ff6600;
     color: #333;
 }
-/* style.css */
 :root {
     --powder-blush: #e8a598ff;
     --powder-blush-2: #ffb5a7ff;
@@ -1690,9 +1663,6 @@ body::before {
     cursor: not-allowed;
     transform: scale(0.97);
 }
-/* ======================
-   CART PAGE
-====================== */
 
 .cart-section {
     width: 90%;
@@ -1806,7 +1776,7 @@ body::before {
 .btn-secondary {
     margin-top:10px;
 }
-/* ===== CART PAGE ===== */
+
 .cart-header {
     display: flex;
     justify-content: space-between;
@@ -1868,7 +1838,6 @@ body::before {
     cursor: pointer;
 }
 
-/* ===== SUMMARY ===== */
 .cart-summary {
     background: #fff;
     padding: 25px;
@@ -1912,13 +1881,11 @@ body::before {
     color: #777;
 }
 
-/* ===== MOBILE ===== */
 @media (max-width: 768px) {
     .cart-container {
         grid-template-columns: 1fr;
     }
 }
-/* Products Page Specific Styles */
 
 /* Page Header */
 .page-header {
@@ -2034,11 +2001,9 @@ body::before {
     background-color: #d32f2f;
     transform: translateY(-2px);
 }
-/* Mobile Responsive Styles for Mashke Finesse */
 
 /* Base Mobile Styles */
 @media screen and (max-width: 768px) {
-    /* General Mobile Adjustments */
     body {
         font-size: 14px;
         line-height: 1.4;
@@ -2056,7 +2021,6 @@ body::before {
     
     .logo-area {
         flex: 1;
-        min-width: 100%;
         text-align: center;
         margin-bottom: 10px;
     }
@@ -2146,7 +2110,7 @@ body::before {
     
     /* Adjust main content for bottom nav */
     main {
-        padding-bottom: 80px; /* Space for bottom navigation */
+        padding-bottom: 80px; 
     }
     
     /* Hero Section */
@@ -2170,7 +2134,7 @@ body::before {
         font-size: 14px;
     }
     
-    /* Swiper/Slider */
+    /* Slider */
     .slider-section {
         padding: 15px;
     }
@@ -2521,7 +2485,7 @@ body::before {
     
     /* Form inputs easier to tap */
     input, select, textarea {
-        font-size: 16px; /* Prevents iOS zoom on focus */
+        font-size: 16px; 
         padding: 12px;
     }
     
@@ -2548,7 +2512,6 @@ body::before {
         line-height: 1.5;
     }
     
-    /* Improve readability */
     .text-content {
         font-size: 16px;
         line-height: 1.6;
@@ -2675,9 +2638,6 @@ input, select, textarea {
     }
 }
 }
-/* ==============================
-   GLOBAL RESPONSIVE SYSTEM
-============================== */
 
 /* Tablet */
 @media (max-width: 1024px) {
@@ -2688,42 +2648,6 @@ input, select, textarea {
 
     .cart-container {
         grid-template-columns: 1fr;
-    }
-
-}
-
-/* Mobile */
-@media (max-width: 768px) {
-
-    body {
-        font-size: 14px;
-    }
-
-    .top-header {
-        flex-direction: column;
-        gap: 10px;
-        text-align: center;
-    }
-
-    .search-area input {
-        width: 100%;
-    }
-
-    .hero {
-        padding: 40px 15px;
-    }
-
-    .hero h2 {
-        font-size: 24px;
-    }
-
-    .products-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 15px;
-    }
-
-    .cat-grid {
-        grid-template-columns: repeat(2, 1fr);
     }
 
 }
@@ -2743,4 +2667,220 @@ input, select, textarea {
         font-size: 20px;
     }
 
+}
+@media (max-width: 768px) {
+  .top-header {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 12px;
+  }
+
+  .logo-area {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .logo {
+    width: 46px;
+    height: 46px;
+    flex-shrink: 0;
+  }
+
+  .top-header h1,
+  .logo-area h1,
+  .logo-area .site-title {
+    font-size: 15px;
+    line-height: 1.2;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .search-area {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .search-area input {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
+  .cart-btn {
+    position: static;
+    margin-left: 0;
+    padding: 8px 10px;
+    font-size: 18px;
+    border-radius: 16px;
+    white-space: nowrap;
+  }
+
+  .nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding: 10px 8px;
+  }
+
+  .nav a {
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+
+  .hero {
+    min-height: 300px;
+    margin: 12px 10px;
+    padding: 36px 16px;
+  }
+
+  .hero h2 {
+    font-size: 24px;
+  }
+
+  .hero p {
+    font-size: 14px;
+  }
+}
+
+  .nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 18px;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding: 10px 8px;
+  }
+
+  .nav a {
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .hero {
+    margin: 15px 10px;
+    padding: 40px 15px;
+    min-height: 260px;
+  }
+
+  .hero h2 {
+    font-size: 24px;
+  }
+
+  .hero p {
+    font-size: 15px;
+  }
+
+  .hero {
+    margin: 15px;
+    padding: 35px 15px;
+  }
+
+  .hero h2 {
+    font-size: 24px;
+  }
+
+  .hero p {
+    font-size: 15px;
+  }
+
+  .slider-section {
+    width: 95%;
+  }
+
+  .swiper {
+    height: 220px;
+  }
+
+
+@media (max-width: 480px) {
+  .top-header h1 {
+    font-size: 18px;
+  }
+
+  .logo {
+    width: 45px;
+    height: 45px;
+  }
+
+  .nav {
+    font-size: 14px;
+  }
+
+  .hero h2 {
+    font-size: 20px;
+  }
+
+  .hero p {
+    font-size: 14px;
+  }
+
+  .products-grid,
+  .cat-grid {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 768px) {
+  .cart-btn {
+    position: fixed;
+    right: 15px;
+    bottom: 70px;
+    z-index: 1000;
+  }
+}
+@media (max-width: 480px) {
+  .top-header {
+    gap: 6px;
+    padding: 10px 8px;
+  }
+
+  .logo {
+    width: 34px;
+    height: 34px;
+  }
+
+  .logo-area h1,
+  .logo-area .site-title {
+    font-size: 14px;
+  }
+
+  .search-area input {
+    max-width: 130px;
+    font-size: 12px;
+    padding: 8px 10px;
+  }
+
+  .cart-btn {
+    transform: scale(0.9);
+  }
+
+  .nav {
+    gap: 14px;
+    padding: 8px 6px;
+  }
+
+  .nav a {
+    font-size: 13px;
+  }
+
+  .hero h2 {
+    font-size: 20px;
+  }
+
+  .hero p {
+    font-size: 14px;
+  }
 }
