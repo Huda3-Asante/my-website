@@ -1,4 +1,4 @@
-// Checkout System - Simple and Working
+// Checkout System with Paystack Integration
 document.addEventListener('DOMContentLoaded', function() {
     loadCheckoutPage();
 });
@@ -63,6 +63,10 @@ function loadCheckoutPage() {
                                 <label class="form-label">Phone Number *</label>
                                 <input type="tel" class="form-input" name="phone" required placeholder="0551234567">
                             </div>
+                            <div class="form-group">
+                                <label class="form-label">Email Address *</label>
+                                <input type="email" class="form-input" name="email" required placeholder="yourname@email.com">
+                            </div>
                         </div>
                         
                         <div class="form-section">
@@ -73,7 +77,7 @@ function loadCheckoutPage() {
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Delivery Zone *</label>
-                                <select class="form-input" name="zone" required>
+                                <select class="form-input" name="zone" required onchange="updateTotal(this.value)">
                                     <option value="community-5">Community 5 - GHS 5.00</option>
                                     <option value="community-6">Community 6 - GHS 7.00</option>
                                     <option value="community-7">Community 7 - GHS 8.00</option>
@@ -90,33 +94,10 @@ function loadCheckoutPage() {
                         
                         <div class="form-section">
                             <h3><i class="fas fa-credit-card"></i> Payment Method</h3>
-                            <div class="mobile-money-options">
-                                <div class="momo-option">
-                                    <input type="radio" id="mtn" name="payment" value="mtn" checked class="momo-radio">
-                                    <label for="mtn" class="momo-label">
-                                        <div class="momo-icon mtn">MTN</div>
-                                        <span>Mobile Money</span>
-                                    </label>
-                                </div>
-                                <div class="momo-option">
-                                    <input type="radio" id="vodafone" name="payment" value="vodafone" class="momo-radio">
-                                    <label for="vodafone" class="momo-label">
-                                        <div class="momo-icon vodafone">Voda</div>
-                                        <span>Vodafone Cash</span>
-                                    </label>
-                                </div>
-                                <div class="momo-option">
-                                    <input type="radio" id="airteltigo" name="payment" value="airteltigo" class="momo-radio">
-                                    <label for="airteltigo" class="momo-label">
-                                        <div class="momo-icon airteltigo">AT</div>
-                                        <span>AirtelTigo Money</span>
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Mobile Money Number *</label>
-                                <input type="tel" class="form-input" name="momoNumber" required placeholder="0551234567">
-                            </div>
+                            <p style="color: #666; font-size: 14px; margin-bottom: 15px;">
+                                <i class="fas fa-shield-alt"></i> Secure payment powered by Paystack. 
+                                Supports MTN MoMo, Vodafone Cash, AirtelTigo & Cards.
+                            </p>
                         </div>
                         
                         <button type="submit" class="payment-btn">
@@ -152,16 +133,16 @@ function loadCheckoutPage() {
                     
                     <div class="summary-row">
                         <span>Delivery Fee</span>
-                        <span>GHS ${deliveryFee.toFixed(2)}</span>
+                        <span id="deliveryFeeDisplay">GHS ${deliveryFee.toFixed(2)}</span>
                     </div>
                     
                     <div class="summary-row total">
                         <span>Total</span>
-                        <span>GHS ${total.toFixed(2)}</span>
+                        <span id="totalDisplay">GHS ${total.toFixed(2)}</span>
                     </div>
                     
                     <p style="color: var(--gray-color); font-size: 14px; margin-top: 20px;">
-                        <i class="fas fa-shield-alt"></i> Secure payment
+                        <i class="fas fa-shield-alt"></i> Secured by Paystack
                     </p>
                 </div>
             </div>
@@ -175,34 +156,56 @@ function loadCheckoutPage() {
     }
 }
 
-// Process checkout
+// Update total when zone changes
+function updateTotal(zone) {
+    const cartItems = JSON.parse(localStorage.getItem('mashkeCart') || '[]');
+    const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const deliveryFees = {
+        'community-5': 5, 'community-6': 7, 'community-7': 8,
+        'community-8': 9, 'community-9': 10, 'ashaiman': 12,
+        'batsonaa': 15, 'spintex': 18, 'east-legon': 20,
+        'accra-central': 25
+    };
+    const deliveryFee = deliveryFees[zone] || 5;
+    const total = subtotal + deliveryFee;
+
+    const deliveryDisplay = document.getElementById('deliveryFeeDisplay');
+    const totalDisplay = document.getElementById('totalDisplay');
+    const payBtn = document.querySelector('.payment-btn');
+
+    if (deliveryDisplay) deliveryDisplay.textContent = `GHS ${deliveryFee.toFixed(2)}`;
+    if (totalDisplay) totalDisplay.textContent = `GHS ${total.toFixed(2)}`;
+    if (payBtn) payBtn.innerHTML = `<i class="fas fa-lock"></i> Pay GHS ${total.toFixed(2)} Now`;
+
+    localStorage.setItem('deliveryZone', zone);
+}
+
+// Process checkout with Paystack
 function processCheckout(event) {
     event.preventDefault();
-    
+
     const form = event.target;
     const formData = new FormData(form);
     const orderData = Object.fromEntries(formData.entries());
-    
-    // Validate
+
+    // Validate phone
     if (!orderData.phone || orderData.phone.length !== 10) {
         alert('Please enter a valid 10-digit phone number');
         return;
     }
-    
+
+    // Validate email
+    if (!orderData.email || !orderData.email.includes('@')) {
+        alert('Please enter a valid email address');
+        return;
+    }
+
     // Save delivery zone
     localStorage.setItem('deliveryZone', orderData.zone);
-    
-    // Get cart data
-    let cartItems = [];
-    try {
-        const savedCart = localStorage.getItem('mashkeCart');
-        if (savedCart) {
-            cartItems = JSON.parse(savedCart);
-        }
-    } catch (e) {
-        console.error('Error:', e);
-    }
-    
+
+    // Get cart items
+    const cartItems = JSON.parse(localStorage.getItem('mashkeCart') || '[]');
+
     // Calculate total
     const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const deliveryFees = {
@@ -213,111 +216,41 @@ function processCheckout(event) {
     };
     const deliveryFee = deliveryFees[orderData.zone] || 5;
     const total = subtotal + deliveryFee;
-    
-    // Generate order number
     const orderNumber = 'MF' + Date.now().toString().slice(-8);
-    
-    // Show payment modal
-    showPaymentModal(orderData, total, orderNumber);
-}
 
-// Show payment modal
-function showPaymentModal(orderData, total, orderNumber) {
-    // Create modal if it doesn't exist
-    let modal = document.getElementById('paymentModal');
-    if (!modal) {
-        modal = document.createElement('div');
-        modal.id = 'paymentModal';
-        modal.className = 'payment-modal';
-        modal.innerHTML = `
-            <div class="modal-content">
-                <div class="modal-icon">
-                    <i class="fas fa-mobile-alt"></i>
-                </div>
-                <h2 class="modal-title">Complete Payment</h2>
-                <p class="modal-text">Check your phone to complete payment</p>
-                <div class="payment-code" id="paymentCode">*170#</div>
-                <p class="modal-text">Reference: <strong id="paymentRef">${orderNumber}</strong></p>
-                <p class="modal-text">Amount: <strong>GHS ${total.toFixed(2)}</strong></p>
-                <button class="modal-btn" onclick="completePayment()">
-                    <i class="fas fa-check"></i> I've Paid
-                </button>
-                <button class="modal-btn" onclick="cancelPayment()" style="background-color: #ccc; color: #333; margin-left: 10px;">
-                    <i class="fas fa-times"></i> Cancel
-                </button>
-            </div>
-        `;
-        document.body.appendChild(modal);
-    }
-    
-    // Update modal content
-    document.getElementById('paymentRef').textContent = orderNumber;
-    
-    // Show modal
-    modal.style.display = 'flex';
-    
-    // Simulate sending payment request
-    setTimeout(() => {
-        console.log(`📱 Payment request sent to ${orderData.momoNumber} for GHS ${total.toFixed(2)}`);
-    }, 1000);
-}
-
-// Complete payment
-function completePayment() {
-    // Hide modal
-    document.getElementById('paymentModal').style.display = 'none';
-    
-    // Get order data from form
-    const form = document.getElementById('checkoutForm');
-    if (!form) return;
-    
-    const formData = new FormData(form);
-    const orderData = Object.fromEntries(formData.entries());
-    
-    // Get cart data
-    let cartItems = [];
-    try {
-        const savedCart = localStorage.getItem('mashkeCart');
-        if (savedCart) {
-            cartItems = JSON.parse(savedCart);
+    // Launch Paystack
+    const handler = PaystackPop.setup({
+        key: 'pk_test_b25ea69dfb238d79355f758f5a506933629792ac',
+        email: orderData.email,
+        amount: total * 100, // Paystack uses pesewas (1 GHS = 100 pesewas)
+        currency: 'GHS',
+        ref: orderNumber,
+        channels: ['mobile_money', 'card'],
+        metadata: {
+            custom_fields: [
+                { display_name: "Customer Name", variable_name: "name", value: orderData.name },
+                { display_name: "Phone", variable_name: "phone", value: orderData.phone },
+                { display_name: "Address", variable_name: "address", value: orderData.address },
+                { display_name: "Delivery Zone", variable_name: "zone", value: orderData.zone },
+                { display_name: "Order Number", variable_name: "order_number", value: orderNumber }
+            ]
+        },
+        callback: function(response) {
+            // Payment successful!
+            console.log('Payment successful:', response);
+            showOrderConfirmation(orderData, cartItems, total, orderNumber);
+            sendSMSNotification(orderData.phone, orderNumber, total, orderData.name);
+            localStorage.removeItem('mashkeCart');
+            if (globalThis.updateCartCount) {
+                globalThis.updateCartCount();
+            }
+        },
+        onClose: function() {
+            alert('Payment cancelled. You can try again.');
         }
-    } catch (e) {
-        console.error('Error:', e);
-    }
-    
-    // Calculate totals
-    const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const deliveryFees = {
-        'community-5': 5, 'community-6': 7, 'community-7': 8,
-        'community-8': 9, 'community-9': 10, 'ashaiman': 12,
-        'batsonaa': 15, 'spintex': 18, 'east-legon': 20,
-        'accra-central': 25
-    };
-    const deliveryFee = deliveryFees[orderData.zone] || 5;
-    const total = subtotal + deliveryFee;
-    
-    // Generate order number
-    const orderNumber = 'MF' + Date.now().toString().slice(-8);
-    
-    // Show confirmation
-    showOrderConfirmation(orderData, cartItems, total, orderNumber);
-    
-    // Clear cart
-    localStorage.removeItem('mashkeCart');
-    
-    // Update cart count
-    if (globalThis.updateCartCount) {
-        globalThis.updateCartCount();
-    }
-    
-    // Send SMS notification (simulated)
-    sendSMSNotification(orderData.phone, orderNumber, total);
-}
+    });
 
-// Cancel payment
-function cancelPayment() {
-    document.getElementById('paymentModal').style.display = 'none';
-    alert('Payment cancelled. You can try again.');
+    handler.openIframe();
 }
 
 // Show order confirmation
@@ -325,25 +258,12 @@ function showOrderConfirmation(orderData, cartItems, total, orderNumber) {
     const checkoutContent = document.getElementById('checkoutContent');
     if (!checkoutContent) return;
     
-    // Zone names mapping
     const zoneNames = {
-        'community-5': 'Community 5',
-        'community-6': 'Community 6',
-        'community-7': 'Community 7',
-        'community-8': 'Community 8',
-        'community-9': 'Community 9',
-        'ashaiman': 'Ashaiman',
-        'batsonaa': 'Batsonaa',
-        'spintex': 'Spintex',
-        'east-legon': 'East Legon',
-        'accra-central': 'Accra Central'
-    };
-    
-    // Payment method names
-    const paymentMethods = {
-        'mtn': 'MTN Mobile Money',
-        'vodafone': 'Vodafone Cash',
-        'airteltigo': 'AirtelTigo Money'
+        'community-5': 'Community 5', 'community-6': 'Community 6',
+        'community-7': 'Community 7', 'community-8': 'Community 8',
+        'community-9': 'Community 9', 'ashaiman': 'Ashaiman',
+        'batsonaa': 'Batsonaa', 'spintex': 'Spintex',
+        'east-legon': 'East Legon', 'accra-central': 'Accra Central'
     };
     
     checkoutContent.innerHTML = `
@@ -351,8 +271,8 @@ function showOrderConfirmation(orderData, cartItems, total, orderNumber) {
             <div class="confirmation-icon">
                 <i class="fas fa-check-circle"></i>
             </div>
-            <h2 class="confirmation-title">Order Confirmed!</h2>
-            <p class="confirmation-subtitle">Thank you for your order!</p>
+            <h2 class="confirmation-title">Order Confirmed! 🎉</h2>
+            <p class="confirmation-subtitle">Thank you for your order, ${orderData.name}!</p>
             
             <div class="order-details">
                 <div class="order-detail">
@@ -368,16 +288,16 @@ function showOrderConfirmation(orderData, cartItems, total, orderNumber) {
                     <span>${orderData.phone}</span>
                 </div>
                 <div class="order-detail">
+                    <span>Email:</span>
+                    <span>${orderData.email}</span>
+                </div>
+                <div class="order-detail">
                     <span>Delivery Address:</span>
                     <span>${orderData.address}</span>
                 </div>
                 <div class="order-detail">
                     <span>Delivery Zone:</span>
                     <span>${zoneNames[orderData.zone] || 'Community 5'}</span>
-                </div>
-                <div class="order-detail">
-                    <span>Payment Method:</span>
-                    <span>${paymentMethods[orderData.payment] || 'Mobile Money'}</span>
                 </div>
                 <div class="order-detail total">
                     <span>Total Paid:</span>
@@ -393,7 +313,7 @@ function showOrderConfirmation(orderData, cartItems, total, orderNumber) {
                 <i class="fas fa-phone"></i> Need help? Call: <strong>0559815445</strong>
             </p>
             
-            <button class="whatsapp-btn" onclick="openWhatsApp()">
+            <button class="whatsapp-btn" onclick="openWhatsApp('${orderNumber}', '${orderData.name}')">
                 <i class="fab fa-whatsapp"></i> Chat on WhatsApp
             </button>
             
@@ -404,17 +324,15 @@ function showOrderConfirmation(orderData, cartItems, total, orderNumber) {
     `;
 }
 
-// Send SMS notification
-function sendSMSNotification(phone, orderNumber, total) {
-    console.log(`📱 SMS sent to ${phone}: Your Mashke Finesse order ${orderNumber} for GHS ${total.toFixed(2)} has been confirmed!`);
-    
-    // Show notification
-    showNotification('Order confirmation sent to your phone!');
+// Send SMS notification 
+function sendSMSNotification(phone, orderNumber, total, name) {
+    console.log(` SMS to ${phone}: Hello ${name}! Your Mashke Finesse order ${orderNumber} of GHS ${total.toFixed(2)} is confirmed. Delivery in 15-30 mins!`);
+    showNotification('✅ Order confirmed! SMS notification sent.');
 }
 
-// Open WhatsApp
-function openWhatsApp() {
-    const message = 'Hello Mashke Finesse! I just placed an order. Can you check the status?';
+// Open WhatsApp with order details
+function openWhatsApp(orderNumber, name) {
+    const message = `Hello Mashke Finesse! I just placed order ${orderNumber}. My name is ${name}. Can you confirm the status?`;
     const phone = '233559815445';
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
 }
@@ -434,82 +352,8 @@ function showNotification(message) {
         border-radius: 8px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         z-index: 1000;
-        animation: slideIn 0.3s ease;
+        font-size: 15px;
     `;
-    
     document.body.appendChild(notification);
-    
-    setTimeout(() => {
-        notification.style.animation = 'slideOut 0.3s ease';
-        setTimeout(() => notification.remove(), 300);
-    }, 3000);
-}
-
-// Add animation styles
-if (!document.querySelector('#checkout-animations')) {
-    const style = document.createElement('style');
-    style.id = 'checkout-animations';
-    style.textContent = `
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        @keyframes slideOut {
-            from { transform: translateX(0); opacity: 1; }
-            to { transform: translateX(100%); opacity: 0; }
-        }
-        .payment-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.8);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-        .modal-content {
-            background-color: white;
-            border-radius: 8px;
-            padding: 40px;
-            width: 90%;
-            max-width: 500px;
-            text-align: center;
-        }
-        .modal-icon {
-            font-size: 60px;
-            color: #2A9D8F;
-            margin-bottom: 20px;
-        }
-        .modal-title {
-            font-size: 24px;
-            margin-bottom: 15px;
-        }
-        .modal-text {
-            color: #666;
-            margin-bottom: 15px;
-        }
-        .payment-code {
-            background-color: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            font-family: monospace;
-            font-size: 24px;
-            margin: 20px 0;
-            border: 2px dashed #2A9D8F;
-        }
-        .modal-btn {
-            background-color: #2A9D8F;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 12px 30px;
-            font-size: 16px;
-            cursor: pointer;
-            margin-top: 15px;
-        }
-    `;
-    document.head.appendChild(style);
+    setTimeout(() => notification.remove(), 4000);
 }
