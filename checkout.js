@@ -76,19 +76,13 @@ function loadCheckoutPage() {
                                 <textarea class="form-input" name="address" required rows="3" placeholder="House number, Street, Landmark"></textarea>
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Delivery Zone *</label>
-                                <select class="form-input" name="zone" required onchange="updateTotal(this.value)">
-                                    <option value="community-5">Community 5 - GHS 5.00</option>
-                                    <option value="community-6">Community 6 - GHS 7.00</option>
-                                    <option value="community-7">Community 7 - GHS 8.00</option>
-                                    <option value="community-8">Community 8 - GHS 9.00</option>
-                                    <option value="community-9">Community 9 - GHS 10.00</option>
-                                    <option value="ashaiman">Ashaiman - GHS 12.00</option>
-                                    <option value="batsonaa">Batsonaa - GHS 15.00</option>
-                                    <option value="spintex">Spintex - GHS 18.00</option>
-                                    <option value="east-legon">East Legon - GHS 20.00</option>
-                                    <option value="accra-central">Accra Central - GHS 25.00</option>
-                                </select>
+                            <label class="form-label">Your Location *</label>
+                            <input type="text" class="form-input" name="location" required 
+                             placeholder="e.g. Tema Community 5, Ashaiman, Spintex...">
+                            <p style="color:#d63384; font-size:13px; margin-top:8px;">
+                            📦 Delivery fee is based on your location. We will confirm the exact fee via WhatsApp before delivery.
+                            </p>
+                        </div>
                             </div>
                         </div>
                         
@@ -101,7 +95,10 @@ function loadCheckoutPage() {
                         </div>
                         
                         <button type="submit" class="payment-btn">
-                            <i class="fas fa-lock"></i> Pay GHS ${total.toFixed(2)} Now
+                           <i class="fas fa-lock"></i> Pay GHS ${subtotal.toFixed(2)} Now
+                           <span style="display:block; font-size:12px; opacity:0.8;">
+                             (Delivery fee confirmed separately)
+                           </span>
                         </button>
                     </form>
                     
@@ -125,22 +122,11 @@ function loadCheckoutPage() {
                             </div>
                         `).join('')}
                     </div>
-                    
                     <div class="summary-row">
-                        <span>Subtotal (${cartItems.reduce((sum, item) => sum + item.quantity, 0)} items)</span>
-                        <span>GHS ${subtotal.toFixed(2)}</span>
+                      <span>Delivery Fee</span>
+                      <span style="color:#d63384; font-size:13px;">Confirmed via WhatsApp</span>
                     </div>
-                    
-                    <div class="summary-row">
-                        <span>Delivery Fee</span>
-                        <span id="deliveryFeeDisplay">GHS ${deliveryFee.toFixed(2)}</span>
-                    </div>
-                    
-                    <div class="summary-row total">
-                        <span>Total</span>
-                        <span id="totalDisplay">GHS ${total.toFixed(2)}</span>
-                    </div>
-                    
+
                     <p style="color: var(--gray-color); font-size: 14px; margin-top: 20px;">
                         <i class="fas fa-shield-alt"></i> Secured by Paystack
                     </p>
@@ -208,13 +194,7 @@ function processCheckout(event) {
 
     // Calculate total
     const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const deliveryFees = {
-        'community-5': 5, 'community-6': 7, 'community-7': 8,
-        'community-8': 9, 'community-9': 10, 'ashaiman': 12,
-        'batsonaa': 15, 'spintex': 18, 'east-legon': 20,
-        'accra-central': 25
-    };
-    const deliveryFee = deliveryFees[orderData.zone] || 5;
+    const deliveryFee = 0;
     const total = subtotal + deliveryFee;
     const orderNumber = 'MF' + Date.now().toString().slice(-8);
 
@@ -331,8 +311,8 @@ function sendSMSNotification(phone, orderNumber, total, name) {
 }
 
 // Open WhatsApp with order details
-function openWhatsApp(orderNumber, name) {
-    const message = `Hello Mashke Finesse! I just placed order ${orderNumber}. My name is ${name}. Can you confirm the status?`;
+function openWhatsApp(orderNumber, name, location) {
+    const message = `Hello Mashke Finesse! I just placed order ${orderNumber}. My name is ${name} and I am located at ${location}. Please confirm my delivery fee.`;
     const phone = '233559815445';
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
 }
